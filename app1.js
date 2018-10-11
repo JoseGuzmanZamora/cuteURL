@@ -6,17 +6,19 @@ const bodyparser = require('body-parser');
 const app = express();
 const port = 4000;
 
-//USO EN LA APP
+//USO ESPECIAL EN LA APP
 app.use(bodyparser.urlencoded());
 app.use(bodyparser.json());
 app.use(express.static('views'));
 
-//CARGAR VIEW ENGINE
+//CARGAR VIEW ENGINE, ES PUG
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
+//DECLARACIÓN GLOBAL DE LA VARIABLE QUE GUARDARÁ LA BD
 var db; 
 
+//MOGO
 MongoClient.connect('mongodb://root:password1@ds227373.mlab.com:27373/urldb', (err, database) => {
     if(err) return console.log(err);
     db = database.db('urldb');
@@ -24,10 +26,12 @@ MongoClient.connect('mongodb://root:password1@ds227373.mlab.com:27373/urldb', (e
     app.listen(port, () => console.log('QUE COMIENCE LO BUENO'));
 })
 
+//PÁGINA PRINCIPAL
 app.get('/', (req,res) => {
     res.status(200).render('index');
 });
 
+//PÁGINA DE ESTADÍSTICAS
 app.get("/statistics", (req,res) => {
     db.collection('infourl').find({}).sort({visits: -1}).toArray((err, docs) => {
         assert.equal(err, null);
@@ -44,8 +48,12 @@ app.get("/statistics", (req,res) => {
             })
         })
       });
+      res.on("error", (err) => {
+          res.status(400).send(err);
+      })
 });
 
+//MÉTODO DE INSERT EN BASE DE DATOS
 app.post('/tiny', (req, res) => {
     var infor = req.body.direccion;
     var temporalurl = shortener(infor);
@@ -66,15 +74,18 @@ app.post('/tiny', (req, res) => {
                 $inc: {creates: 1}
             }, (err, result) => {
                 if(err) return console.log(err);
-                //res.status(201).send("URL Created, it is" + " " + "http://localhost:4000/" + (docs[0]["cute"]).toString());
-                res.status(201).render('index2', {
+                res.status(202).render('index2', {
                     direccion_nueva: ("http://localhost:4000/" + docs[0]["cute"].toString())
                 })
             });
         }
     });
+    res.on("error", (err) => {
+        res.status(400).send(err);
+    })
 })
 
+//REDIRECCIÓN A PÁGINA QUE EL USUARIO DESEA VISITAR
 app.get("/:cuteurl", (req, res) => {
     var infor = req.params.cuteurl;
     if(infor != 'tiny'){
@@ -91,10 +102,13 @@ app.get("/:cuteurl", (req, res) => {
             }
         });
     }
+    res.on("error", (err) => {
+        res.status(400).send(err);
+    })
 })
 
 
-
+//HASHER
 var shortener = (urloriginal) => {
     var numbercode = 0;
     for(var i = 0; i < urloriginal.length; i++) {
