@@ -1,0 +1,27 @@
+doctype html
+html
+    head
+        title cute URL
+        link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css")
+        link(rel="stylesheet", href="design.css")
+        link(href="https://fonts.googleapis.com/css?family=Niramit" rel="stylesheet")
+    body(class="purple darken-1")
+        h2(class="center-align") cute URL
+        form(action="/tiny", method="post" class="container center-align")
+            input(id="input" name="direccion" type="text" placeholder="Please enter your long URL")
+            button(id="centralbtn" class="btn-large waves-effect waves-light teal accent-4" type="submit") make me cute
+        div(class="container center-align")
+            input#nuevourl(type='text', value= direccion_nueva)
+            button(id="copyclipboard" class="btn-small waves-effect waves-light cyan accent-4" onclick='copiarclip()') copy
+        div(class="row")
+            div(class="col s12 center-align")
+                form(action="/statistics", method="get")
+                    button(id="statisticsbtn" class="btn-large waves-effect waves-light cyan accent-4" type="submit") statistics
+        script(src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js")
+        script.
+            function copiarclip() {
+            var copyText = document.getElementById("nuevourl");
+            copyText.select();
+            document.execCommand("copy");
+            //alert("Texto Copiado" + copyText.value);
+            }

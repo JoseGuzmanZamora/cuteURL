@@ -1,7 +1,5 @@
-var generalrepetida = false;
-var generalnorepetida = "";
-const bootstrap = require('bootstrap');
 const MongoClient = require('mongodb').MongoClient;
+const path = require('path');
 const assert = require('assert');
 const express = require('express');
 const bodyparser = require('body-parser');
@@ -11,6 +9,11 @@ const port = 4000;
 //USO EN LA APP
 app.use(bodyparser.urlencoded());
 app.use(bodyparser.json());
+app.use(express.static('views'));
+
+//CARGAR VIEW ENGINE
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'pug');
 
 var db; 
 
@@ -22,7 +25,25 @@ MongoClient.connect('mongodb://root:password1@ds227373.mlab.com:27373/urldb', (e
 })
 
 app.get('/', (req,res) => {
-    res.sendFile("/COMPUTER SCIENCE 2'2/Programación 3/tinyURL/pages/index.html")
+    res.status(200).render('index');
+});
+
+app.get("/statistics", (req,res) => {
+    db.collection('infourl').find({}).sort({visits: -1}).toArray((err, docs) => {
+        assert.equal(err, null);
+        db.collection('infourl').find({}).sort({creates: -1}).toArray((err, docs2) => {
+            assert.equal(err, null);
+            db.collection('infourl').find().limit(1).sort({$natural:-1}).toArray((err,docs3) => {
+                assert.equal(err, null);
+                res.status(200).render('statistics', {
+                    informacion: docs,
+                    masvisitas: docs[0],
+                    mascreated: docs2[0],
+                    reciente: docs3[0]
+                });
+            })
+        })
+      });
 });
 
 app.post('/tiny', (req, res) => {
@@ -32,18 +53,23 @@ app.post('/tiny', (req, res) => {
         assert.equal(err, null);
         if(docs.length == 0){
             var fecha = new Date();
-            db.collection('infourl').insertOne({"createdAt": new getDate(), original: infor, cute: temporalurl.toString(), visits: 0, creates: 1, year: fecha.getFullYear().toString(), month: fecha.getMonth().toString(), day: fecha.getDate().toString(), hour: fecha.getHours().toString(), minute: fecha.getMinutes().toString()}, (err, result) => {
+            db.collection('infourl').insertOne({"createdAt": new Date(), original: infor, cute: temporalurl.toString(), visits: 0, creates: 1, year: fecha.getFullYear().toString(), month: (fecha.getMonth() + 1).toString(), day: fecha.getDate().toString(), hour: fecha.getHours().toString(), minute: fecha.getMinutes().toString()}, (err, result) => {
                 if(err) return console.log(err);
                 console.log("GUARDADO BABY.");
                 req.body = temporalurl; 
-                res.status(201).send("URL Created, it is" + " " + "localhost:4000/" + (req.body).toString());
+                res.status(201).render('index2', {
+                    direccion_nueva: ("http://localhost:4000/" + req.body.toString())
+                });
             });
         }else{
             db.collection('infourl').updateOne({"original": infor.toString()}, {
                 $inc: {creates: 1}
             }, (err, result) => {
                 if(err) return console.log(err);
-                res.status(201).send("URL Created, it is" + " " + "localhost:4000/" + (docs[0]["cute"]).toString());
+                //res.status(201).send("URL Created, it is" + " " + "http://localhost:4000/" + (docs[0]["cute"]).toString());
+                res.status(201).render('index2', {
+                    direccion_nueva: ("http://localhost:4000/" + docs[0]["cute"].toString())
+                })
             });
         }
     });
@@ -66,6 +92,8 @@ app.get("/:cuteurl", (req, res) => {
         });
     }
 })
+
+
 
 var shortener = (urloriginal) => {
     var numbercode = 0;

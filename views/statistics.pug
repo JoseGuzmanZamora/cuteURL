@@ -1,0 +1,40 @@
+doctype html
+html
+    head
+        title cute URL
+        link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css")
+        link(rel="stylesheet", href="designs.css")
+        link(href="https://fonts.googleapis.com/css?family=Niramit" rel="stylesheet")
+    body(class="purple lighten-5")
+        form(action="/", method="get")
+                    button(id="homebtn" class="btn-small waves-effect waves-light purple darken-4" type="submit") home
+        h3(class="center-align") cute URL
+        div(class="row")
+            div(class="col s12")
+                div(class="row")
+                    div(class="col s12")
+                        h4= "Most Visited Page: "
+                            a(href=masvisitas.original)=masvisitas.original
+                        h5= "Page with Most Cute Requests: "
+                            a(href=mascreated.original)=mascreated.original
+                        h5= "Last Created: "
+                            a(href=reciente.original)=reciente.original 
+        div(class="row")
+            div(class="col s12")
+                table(class="centered responsive-table")
+                    thead
+                        tr
+                            th Page (Top 10)
+                            th Cute Id
+                            th Visits
+                            th Cute Request
+                            th Date Created
+                    tbody
+                        each valor, i in informacion
+                            tr  
+                                td 
+                                    a(href=valor.original)= valor.original
+                                td= valor.cute
+                                td= valor.visits
+                                td= valor.creates
+                                td= valor.day + "/" + (valor.month) + "/" + valor.year

@@ -1,0 +1,22 @@
+body{
+    font-family: 'Niramit', sans-serif;
+    color:  rgb(41, 1, 46);
+}
+h3{
+    color:  rgb(41, 1, 46);
+    margin-top: 1%;
+}
+
+table, th, td {
+    color: white;
+    border: 2px solid white;
+    font-size: 120%;
+}
+
+#homebtn{
+    margin: 1%;
+}
+
+table{
+    background-color: rgb(92, 44, 104);
+}
